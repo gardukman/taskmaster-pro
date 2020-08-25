@@ -33,7 +33,7 @@ var loadTasks = function() {
 
   // loop over object properties
   $.each(tasks, function(list, arr) {
-    console.log(list, arr);
+    
     // then loop over sub-array
     arr.forEach(function(task) {
       createTask(task.text, task.date, list);
@@ -80,6 +80,55 @@ $("#task-form-modal .btn-primary").click(function() {
 
     saveTasks();
   }
+
+  // when you click on a saved task (which is a list-group element) the following function happens
+  $(".list-group").on("click", "p", function() {
+    // the text that is clicked on is highlighted and the area its in
+    var text = $(this)
+      .text()
+      .trim();
+
+      // the text is able to be edited
+      var textInput = $("<textarea>")
+      .addClass("form-control")
+      .val(text);
+      // the original text is then replaced with the edited text
+      $(this).replaceWith(textInput);
+      // the text automatically is focused on when clicked on
+      textInput.trigger("focus");
+
+      // blur event will trigger as soon as the user interacts with anything other than the <textarea> -- blur callback
+      $(".list-group").on("blur", "textarea", function() {
+        // get the textarea's current value/text
+        var text = $(this)
+          .val()
+          .trim();
+
+        // get the parent ul's id attribute
+        var status = $(this)
+          .closest(".list-group")
+          // returns the ID
+          .attr("id")
+          .replace("list-", "");
+
+        // get the task's position in the list of other li elements
+        var index = $(this)
+          .closest(".list-group-item")
+          .index();
+
+          tasks[status][index].text = text;
+          saveTasks();
+
+        // recreate p element
+        var taskP = $("<p>")
+          .addClass("m-1")
+          .text(text);
+
+        // replace textarea with p element
+        $(this).replaceWith(taskP);
+      });
+  });
+
 });
 
 // remove all tasks
